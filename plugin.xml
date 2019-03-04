@@ -1,0 +1,15 @@
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-usb-serial-android" version="0.0.1">
+   <name>USBSerialAndroid</name>
+   <js-module name="USBSerialAndroid" src="www/USBSerialAndroid.js">
+      <clobbers target="cordova.plugins.USBSerialAndroid" />
+   </js-module>
+   <platform name="android">
+      <config-file parent="/*" target="res/xml/config.xml">
+         <feature name="USBSerialAndroid">
+            <param name="android-package" value="cordova.usbSerialAndroid.USBSerialAndroid" />
+         </feature>
+      </config-file>
+      <config-file parent="/*" target="AndroidManifest.xml" />
+      <source-file src="src/android/USBSerialAndroid.java" target-dir="src/USBSerialAndroid" />
+   </platform>
+</plugin>
