@@ -15,7 +15,7 @@ public class USBSerialAndroid extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("helloWorld")) {
-            String message = args.getString(0) + " -12345";
+            String message = args.getString(0) + " - 888";
             this.coolMethod(message, callbackContext);
             return true;
         }
