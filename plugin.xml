@@ -1,4 +1,4 @@
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-usb-serial-android" version="0.0.1">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-usb-serial-android" version="0.0.1">
    <name>USBSerialAndroid</name>
    <js-module name="USBSerialAndroid" src="www/USBSerialAndroid.js">
       <clobbers target="cordova.plugins.USBSerialAndroid" />
