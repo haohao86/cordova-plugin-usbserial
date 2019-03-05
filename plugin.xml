@@ -10,6 +10,25 @@
          </feature>
       </config-file>
       <config-file parent="/*" target="AndroidManifest.xml" />
+	  <source-file src="libs/usbserial/util/HexDump.java" target-dir="libs/HexDump" />
+	  <source-file src="libs/usbserial/util/SerialInputOutputManager.java" target-dir="libs/SerialInputOutputManager" />
+	  <source-file src="libs/usbserial/BuildInfo.java" target-dir="libs/BuildInfo" />
+
+	  <source-file src="libs/usbserial/driver/CdcAcmSerialDriver.java" target-dir="libs/CdcAcmSerialDriver" />
+	  <source-file src="libs/usbserial/driver/Ch34xSerialDriver.java" target-dir="libs/Ch34xSerialDriver" />
+	  <source-file src="libs/usbserial/driver/CommonUsbSerialPort.java" target-dir="libs/CommonUsbSerialPort" />
+	  <source-file src="libs/usbserial/driver/Cp21xxSerialDriver.java" target-dir="libs/Cp21xxSerialDriver" />
+	  <source-file src="libs/usbserial/driver/FtdiSerialDriver.java" target-dir="libs/FtdiSerialDriver" />
+	  <source-file src="libs/usbserial/driver/ProbeTable.java" target-dir="libs/ProbeTable" />
+	  <source-file src="libs/usbserial/driver/ProlificSerialDriver.java" target-dir="libs/ProlificSerialDriver" />
+	  <source-file src="libs/usbserial/driver/UsbId.java" target-dir="libs/UsbId" />
+	  <source-file src="libs/usbserial/driver/UsbSerialDriver.java" target-dir="libs/UsbSerialDriver" />
+	  <source-file src="libs/usbserial/driver/UsbSerialPort.java" target-dir="libs/UsbSerialPort" />
+	  <source-file src="libs/usbserial/driver/UsbSerialProber.java" target-dir="libs/UsbSerialProber" />
+	  <source-file src="libs/usbserial/driver/UsbSerialRuntimeException.java" target-dir="libs/UsbSerialRuntimeException" />
+	  
       <source-file src="src/android/USBSerialAndroid.java" target-dir="src/USBSerialAndroid" />
+	  <lib-file src="libs/Puppy.jar" arch="puppy" />
+	  <lib-file src="libs/tablet-1.0.0.jar" arch="tablet" />
    </platform>
 </plugin>
