@@ -196,6 +196,6 @@ public class USBSerialAndroid extends CordovaPlugin {
     }
 	
 	private String getResponse(String message) {
-		return "{\"message\": \""+message+"\"}";
+		return '{"message": "' + message + '"}';
 	}
 }
