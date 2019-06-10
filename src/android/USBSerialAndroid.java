@@ -226,7 +226,7 @@ public class USBSerialAndroid extends CordovaPlugin {
 			ComA.sendHex("1B31");
 			code = "";
 			int sent = 0;
-			while(sent == 0) {
+			while(sent <= 30) {
 				try {
 					Thread.sleep(100);
 				} catch (Exception e){
@@ -234,11 +234,14 @@ public class USBSerialAndroid extends CordovaPlugin {
 				}
 				code = code.trim();
 				if(!code.equals("") && !code.isEmpty() && code.length() > 0) {
-					sent = 1;
+					sent = 31;
 					callbackContext.success(code.trim());
+				} else if (sent == 15){
+					ComA.sendHex("1B31");
+					sent = 0;
 				}
+				sent++;
 			}
-			
 			
 		} else if (action.equals("laserClose")) {
 			
