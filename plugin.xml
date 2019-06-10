@@ -9,7 +9,21 @@
             <param name="android-package" value="cordova.usbSerialAndroid.USBSerialAndroid" />
          </feature>
       </config-file>
+	  
+	   <config-file target="AndroidManifest.xml" parent="/*">
+			<uses-feature android:name="android.hardware.usb.host" />
+			<uses-permission android:name="android.permission.USB_PERMISSION" />
+        </config-file>
+		
+		<config-file target="AndroidManifest.xml" parent="application/activity">
+			<intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+            android:resource="@xml/device_filter" />
+		</config-file>
       <config-file parent="/*" target="AndroidManifest.xml" />
+	  <source-file src="src/android/device_filter.xml" target-dir="res/xml" />
 	  <source-file src="libs/usbserial/util/HexDump.java" target-dir="libs/HexDump" />
 	  <source-file src="libs/usbserial/util/SerialInputOutputManager.java" target-dir="libs/SerialInputOutputManager" />
 	  <source-file src="libs/usbserial/BuildInfo.java" target-dir="libs/BuildInfo" />
@@ -26,6 +40,31 @@
 	  <source-file src="libs/usbserial/driver/UsbSerialPort.java" target-dir="libs/UsbSerialPort" />
 	  <source-file src="libs/usbserial/driver/UsbSerialProber.java" target-dir="libs/UsbSerialProber" />
 	  <source-file src="libs/usbserial/driver/UsbSerialRuntimeException.java" target-dir="libs/UsbSerialRuntimeException" />
+	  
+	  <source-file src="src/android/java/android_serialport_api/SerialPort.java" target-dir="app/src/main/java/androidSerialportApi/" />
+	  <source-file src="src/android/java/android_serialport_api/SerialPortFinder.java" target-dir="app/src/main/java/androidSerialportApi/" />
+	  <source-file src="src/android/java/cdc/CdcAcmSerialPort.java" target-dir="app/src/main/java/cdc/" />
+	  <source-file src="src/android/java/cdc/CommonUsbSerialPort.java" target-dir="app/src/main/java/cdc/" />
+	  <source-file src="src/android/java/cdc/UsbCdcManager.java" target-dir="app/src/main/java/cdc/" />
+	  <source-file src="src/android/java/cdc/UsbId.java" target-dir="app/src/main/java/cdc/" />
+	  <source-file src="src/android/java/cdc/UsbSerialPort.java" target-dir="app/src/main/java/cdc/" />
+	  
+	  <source-file src="src/android/java/com/nlscan/bean/AssistBean.java" target-dir="app/src/main/java/com/nlscan/bean/" />
+	  <source-file src="src/android/java/com/nlscan/bean/ComBean.java" target-dir="app/src/main/java/com/nlscan/bean/" />
+	  
+	  <source-file src="src/android/java/com/nlscan/ComAssistant/MyFunc.java" target-dir="app/src/main/java/com/nlscan/ComAssistant/" />
+	  <source-file src="src/android/java/com/nlscan/ComAssistant/SerialHelper.java" target-dir="app/src/main/java/com/nlscan/ComAssistant/" />
+	  
+	  <source-file src="src/android/java/utils/clsPublic.java" target-dir="app/src/main/java/utils/" />
+	  <source-file src="src/android/java/utils/MyLog.java" target-dir="app/src/main/java/utils/" />
+	  
+	  <source-file src="src/android/jni/Android.mk" target-dir="app/src/main/java/c/android/jni/"/>
+	  <source-file src="src/android/jni/Application.mk" target-dir="app/src/main/java/c/android/jni/"/>
+	  <source-file src="src/android/jni/gen_SerialPort_h.sh" target-dir="app/src/main/java/c/android/jni/"/>
+	  <source-file src="src/android/jni/SerialPort.c" target-dir="app/src/main/java/c/android/jni/"/>
+	  <source-file src="src/android/jni/SerialPort.h" target-dir="app/src/main/java/c/android/jni/"/>
+	  
+	  <source-file src="src/android/libs/armeabi/libserial_port.so" target-dir="app/src/main/jniLibs/armeabi/" />
 	  
       <source-file src="src/android/USBSerialAndroid.java" target-dir="src/USBSerialAndroid" />
 	  <lib-file src="libs/Puppy.jar" arch="puppy" />

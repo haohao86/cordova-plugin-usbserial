@@ -18,6 +18,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android_serialport_api.SerialPortFinder;
+
+import com.nlscan.ComAssistant.MyFunc;
+import com.nlscan.ComAssistant.SerialHelper;
+import com.nlscan.bean.AssistBean;
+import com.nlscan.bean.ComBean;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.security.InvalidParameterException;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import utils.MyLog;
+
 /**
  * This class echoes a string called from JavaScript.
  */
@@ -28,6 +46,14 @@ public class USBSerialAndroid extends CordovaPlugin {
 	private Handler processHandler;
 	
 	private static int cmdTimeoutCounter;
+	
+	private SerialControl ComA;
+	
+	private DispQueueThread DispQueue;
+	
+	private AssistBean AssistData;
+	
+	private String code = "";
 	
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -46,7 +72,7 @@ public class USBSerialAndroid extends CordovaPlugin {
 			//Select frequency first, 0 = 2410M
 			cmdApi.getInstance().setCommandFrequency(0);
 			
-			cmdApi.getInstance().masterSendCommonCommand("AC011244", "000000", 530, cmdList);
+			cmdApi.getInstance().masterSendCommonCommand(args.getString(0), "000000", 530, cmdList);
 			
 			cmdTimeoutCounter = 0;
 			
@@ -183,6 +209,43 @@ public class USBSerialAndroid extends CordovaPlugin {
 			//this.coolMethod(Integer.toString(cmdApi.getInstance().getCmdResult()), callbackContext);
 			
             return true;
+		} else if (action.equals("laser")) {
+			
+			ComA = new SerialControl();
+			DispQueue = new DispQueueThread();
+			DispQueue.start();
+			
+			ComA.setPort("/dev/ttyMT2");
+            ComA.setBaudRate("9600");
+			OpenComPort(ComA);
+			
+			callbackContext.success("success");
+			
+		} else if (action.equals("laserSendCommand")) {
+			
+			ComA.sendHex("1B31");
+			code = "";
+			int sent = 0;
+			while(sent == 0) {
+				try {
+					Thread.sleep(100);
+				} catch (Exception e){
+				
+				}
+				code = code.trim();
+				if(!code.equals("") && !code.isEmpty() && code.length() > 0) {
+					sent = 1;
+					callbackContext.success(code.trim());
+				}
+			}
+			
+			
+		} else if (action.equals("laserClose")) {
+			
+			ComA.stopSend();
+            ComA.close();
+			callbackContext.success("success");
+			
 		}
         return false;
     }
@@ -196,6 +259,88 @@ public class USBSerialAndroid extends CordovaPlugin {
     }
 	
 	private String getResponse(String message) {
-		return '{"message": "' + message + '"}';
+		return message;
 	}
+	
+	private class SerialControl extends SerialHelper {
+
+      
+        public SerialControl() {
+        }
+
+        @Override
+        protected void onDataReceived(final ComBean ComRecData) {
+            DispQueue.AddQueue(ComRecData);
+        }
+    }
+	
+	private void OpenComPort(SerialHelper ComPort) {
+        try {
+            ComPort.open();
+			ShowMessage("Opening");
+        } catch (SecurityException e) {
+            ShowMessage("打开串口失败:没有串口读/写权限!");
+        } catch (IOException e) {
+            ShowMessage("打开串口失败:未知错误!");
+        } catch (InvalidParameterException e) {
+            ShowMessage("打开串口失败:参数错误!");
+        }
+    }
+	
+	private class DispQueueThread extends Thread{
+		private Queue<ComBean> QueueList = new LinkedList<ComBean>();
+		@Override
+		public void run() {
+			super.run();
+			while(!isInterrupted()) {
+				final ComBean ComData;
+				//code = "Step 1"+QueueList.size();
+				while((ComData=QueueList.poll())!=null)
+				{
+					new Thread(new Runnable()
+					{
+						public void run()
+						{
+							DispRecData(ComData);
+						}
+					});
+					try
+					{
+						Thread.sleep(100);//显示性能高的话，可以把此数值调小。
+					} catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+		}
+
+		public synchronized void AddQueue(ComBean ComData){
+			code = new String(ComData.bRec);
+			QueueList.add(ComData);
+		}
+	}
+	
+	private void DispRecData(ComBean ComRecData) {
+		StringBuilder sMsg = new StringBuilder();
+		sMsg.append(ComRecData.sRecTime);
+		sMsg.append("[");
+		sMsg.append(ComRecData.sComPort);
+		sMsg.append("]");
+		sMsg.append("[Txt] ");
+		sMsg.append(new String(ComRecData.bRec));
+		sMsg.append("[Hex] ");
+		sMsg.append(MyFunc.ByteArrToHex(ComRecData.bRec));
+		
+		sMsg.append("\r\n");
+		code = sMsg.toString();
+	}
+	
+	
+	
+	//------------------------------------------显示消息
+    private void ShowMessage(String sMsg) {
+        MyLog.i("INFO", sMsg);
+    }
 }
