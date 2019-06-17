@@ -33,6 +33,11 @@ import java.io.ObjectOutputStream;
 import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+import java.io.File;
+import java.io.FileWriter;
 
 import utils.MyLog;
 
@@ -54,6 +59,8 @@ public class USBSerialAndroid extends CordovaPlugin {
 	private AssistBean AssistData;
 	
 	private String code = "";
+	
+	private FileWriter outp = null;
 	
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -249,10 +256,58 @@ public class USBSerialAndroid extends CordovaPlugin {
             ComA.close();
 			callbackContext.success("success");
 			
+		} else if (action.equals("laserScan")) {
+			
+			try {
+			  open();
+			}
+			catch(IOException e) {
+			  e.printStackTrace();
+			}
+			callbackContext.success("success");
+			
 		}
         return false;
     }
 
+	private void open() throws IOException {
+
+        File f = new File("/dev/ttyMT2");
+        if (f.exists()) {
+            if (f.canRead()) {
+                if (f.canWrite()) {
+                    
+                    try {
+						
+						for (int i = 0; i < 10; ++i) {
+							FileInputStream inp = new FileInputStream(String.format("/dev/ttyMT%d", i));
+						}
+                        
+                    } catch (Exception e) {
+                        
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        
+                    }
+                    outp = new FileWriter("/dev/ttyMT2");
+                    outp.write(new char[]{0x07, 0xc6, 0x04, 0x08, 0x00, 0x8a, 0x08, 0xfe, 0x95});
+                    outp.flush();
+					outp.write(new char[]{0x1b, 0x31});
+					outp.flush();
+                } else {
+					
+                }
+            } else {
+				
+            }
+        } else {
+            
+        }
+    }
+
+	
     private void coolMethod(String message, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {
             callbackContext.success(message);
