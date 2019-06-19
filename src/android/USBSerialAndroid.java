@@ -62,6 +62,8 @@ public class USBSerialAndroid extends CordovaPlugin {
 	
 	private FileWriter outp = null;
 	
+	private int totalRepeatScan = 2;
+	
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("helloWorld")) {
@@ -258,55 +260,51 @@ public class USBSerialAndroid extends CordovaPlugin {
 			
 		} else if (action.equals("laserScan")) {
 			
-			try {
-			  open();
+			ComA = new SerialControl();
+			DispQueue = new DispQueueThread();
+			DispQueue.start();
+			
+			ComA.setPort("/dev/ttyMT2");
+            ComA.setBaudRate("9600");
+			OpenComPort(ComA);
+			
+			ComA.sendHex("1B31");
+			code = "";
+			int sent = 0;
+			int count = 0;
+			
+			while(sent <= 50) {
+				
+				try {
+					Thread.sleep(100);
+				} catch (Exception e){
+				
+				}
+				
+				code = code.trim();
+				if(sent == 50 || (!code.equals("") && !code.isEmpty() && code.length() > 0)) {
+					
+					sent = 51;
+					callbackContext.success(code.trim());
+					
+				} else if (sent == 15){
+					ComA.sendHex("1B31");
+					sent = 0;
+					
+					if (count == totalRepeatScan) {
+						sent = 15;
+					}
+					count++;
+				}
+				sent++;
 			}
-			catch(IOException e) {
-			  e.printStackTrace();
-			}
-			callbackContext.success("success");
+			
+			ComA.stopSend();
+            ComA.close();
 			
 		}
         return false;
     }
-
-	private void open() throws IOException {
-
-        File f = new File("/dev/ttyMT2");
-        if (f.exists()) {
-            if (f.canRead()) {
-                if (f.canWrite()) {
-                    
-                    try {
-						
-						for (int i = 0; i < 10; ++i) {
-							FileInputStream inp = new FileInputStream(String.format("/dev/ttyMT%d", i));
-						}
-                        
-                    } catch (Exception e) {
-                        
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        
-                    }
-                    outp = new FileWriter("/dev/ttyMT2");
-                    outp.write(new char[]{0x07, 0xc6, 0x04, 0x08, 0x00, 0x8a, 0x08, 0xfe, 0x95});
-                    outp.flush();
-					outp.write(new char[]{0x1b, 0x31});
-					outp.flush();
-                } else {
-					
-                }
-            } else {
-				
-            }
-        } else {
-            
-        }
-    }
-
 	
     private void coolMethod(String message, CallbackContext callbackContext) {
         if (message != null && message.length() > 0) {

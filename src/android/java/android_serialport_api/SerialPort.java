@@ -37,22 +37,11 @@ public class SerialPort {
 	private FileInputStream mFileInputStream;
 	private FileOutputStream mFileOutputStream;
 
-	public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+	public SerialPort(String path, int baudrate, int flags) {
 
-		/* Check access permission */
-		if (!device.canRead() || !device.canWrite()) {
-			try {
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new SecurityException();
-			}
-		}
-
-		mFd = open("/dev/ttyMT2", baudrate, flags);
+		mFd = open(path, baudrate, flags);
 		if (mFd == null) {
 			Log.e(TAG, "native open returns null");
-			throw new IOException();
 		}
 		mFileInputStream = new FileInputStream(mFd);
 		mFileOutputStream = new FileOutputStream(mFd);
