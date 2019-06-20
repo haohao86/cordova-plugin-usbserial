@@ -53,46 +53,46 @@ import utils.MyLog;
 public class USBSerialAndroid extends CordovaPlugin {
 
 	private RFCommandApi cmdApi;
-	
+
 	private Handler processHandler;
-	
+
 	private static int cmdTimeoutCounter;
-	
+
 	private SerialControl ComA;
-	
+
 	private DispQueueThread DispQueue;
-	
+
 	private AssistBean AssistData;
-	
+
 	private String code = "";
-	
+
 	private FileWriter outp = null;
-	
+
 	private int totalRepeatScan = 2;
-	
+
 	private Intent intent = new Intent();
-	
-    @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        if (action.equals("helloWorld")) {
-			
+
+	@Override
+	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+		if (action.equals("helloWorld")) {
+
 			Puppy helloworld = new Puppy();
-			
-            String message = args.getString(0) + " - 888";
-			
+
+			String message = args.getString(0) + " - 888";
+
 			List<String> cmdList = new ArrayList<>();
- 
+
 			cmdList.add("0");
-			
+
 			cmdApi.getInstance().setContext(this.cordova.getActivity().getApplicationContext());
- 
-			//Select frequency first, 0 = 2410M
+
+			// Select frequency first, 0 = 2410M
 			cmdApi.getInstance().setCommandFrequency(0);
-			
+
 			cmdApi.getInstance().masterSendCommonCommand(args.getString(0), "000000", 530, cmdList);
-			
+
 			cmdTimeoutCounter = 0;
-			
+
 			Runnable runnable = new Runnable() {
 				@Override
 				public void run() {
@@ -101,71 +101,72 @@ public class USBSerialAndroid extends CordovaPlugin {
 					int resultValue = cmdApi.getInstance().getCmdResult();
 
 					if (resultValue != ExecuteResultKey.COMMAND_RESULT_NONE) {
-						//command execute success
+						// command execute success
 						if (resultValue == ExecuteResultKey.COMMAND_RESULT_SUCCESS) {
 							callbackContext.success("Master Send Common Command Success");
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
-						//Communication with RF module failed
+						// Communication with RF module failed
 						else if (resultValue == ExecuteResultKey.COMMAND_RESULT_COMMUNICATION_FAIL) {
 							callbackContext.success("Communicate Fail");
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
-						//Command ERROR, Probably because the parameter is wrong
+						// Command ERROR, Probably because the parameter is wrong
 						else if (resultValue == ExecuteResultKey.COMMAND_RESULT_COMMAND_FAIL) {
 							callbackContext.success("Command error");
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
-						//Command execute failed
+						// Command execute failed
 						else if (resultValue == ExecuteResultKey.COMMAND_RESULT_EXEC_FAIL) {
 							callbackContext.success("Command Execute Fail");
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
 					}
 					// The user can customize the timeout
 					else if (cmdTimeoutCounter >= 300) {
 						callbackContext.success("Command Timeout");
-						//stop current command
+						// stop current command
 						cmdApi.getInstance().stopCurrentCommand();
-						//stop timer
+						// stop timer
 						processHandler.removeCallbacks(this);
 					} else {
 						processHandler.postDelayed(this, 100);
 					}
 				}
 			};
-			
+
 			processHandler = new Handler();
 			processHandler.postDelayed(runnable, 100);
-			
-            //this.coolMethod("hahaha " + Integer.toString(cmdApi.getInstance().getCmdResult()), callbackContext);
-			
-            return true;
-        } else if (action.equals("sendMasterCommand")) {
-			
+
+			// this.coolMethod("hahaha " +
+			// Integer.toString(cmdApi.getInstance().getCmdResult()), callbackContext);
+
+			return true;
+		} else if (action.equals("sendMasterCommand")) {
+
 			cmdTimeoutCounter = 0;
-			
+
 			String masterSerialNumber = args.getString(0);
 			String passowrd = args.getString(1);
 			int command = Integer.parseInt(args.getString(2));
 			List<String> cmdList = Arrays.asList(args.getString(3).split(","));
-			
+
 			cmdApi.getInstance().setContext(this.cordova.getActivity().getApplicationContext());
 			cmdApi.getInstance().setCommandFrequency(0);
 			cmdApi.getInstance().masterSendCommonCommand(masterSerialNumber, passowrd, command, cmdList);
-			
+
 			Runnable runnable = new Runnable() {
 				@Override
 				public void run() {
@@ -174,86 +175,87 @@ public class USBSerialAndroid extends CordovaPlugin {
 					int resultValue = cmdApi.getInstance().getCmdResult();
 
 					if (resultValue != ExecuteResultKey.COMMAND_RESULT_NONE) {
-						//command execute success
+						// command execute success
 						if (resultValue == ExecuteResultKey.COMMAND_RESULT_SUCCESS) {
 							callbackContext.success(getResponse("Master Send Common Command Success"));
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
-						//Communication with RF module failed
+						// Communication with RF module failed
 						else if (resultValue == ExecuteResultKey.COMMAND_RESULT_COMMUNICATION_FAIL) {
 							callbackContext.error(getResponse("Communicate Fail"));
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
-						//Command ERROR, Probably because the parameter is wrong
+						// Command ERROR, Probably because the parameter is wrong
 						else if (resultValue == ExecuteResultKey.COMMAND_RESULT_COMMAND_FAIL) {
 							callbackContext.error(getResponse("Command error"));
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
-						//Command execute failed
+						// Command execute failed
 						else if (resultValue == ExecuteResultKey.COMMAND_RESULT_EXEC_FAIL) {
 							callbackContext.error(getResponse("Command Execute Fail"));
-							//stop current command
+							// stop current command
 							cmdApi.getInstance().stopCurrentCommand();
-							//stop timer
+							// stop timer
 							processHandler.removeCallbacks(this);
 						}
 					}
 					// The user can customize the timeout
 					else if (cmdTimeoutCounter >= 300) {
 						callbackContext.error(getResponse("Command Timeout"));
-						//stop current command
+						// stop current command
 						cmdApi.getInstance().stopCurrentCommand();
-						//stop timer
+						// stop timer
 						processHandler.removeCallbacks(this);
 					} else {
 						processHandler.postDelayed(this, 100);
 					}
 				}
 			};
-			
+
 			processHandler = new Handler();
 			processHandler.postDelayed(runnable, 100);
-			
-			//this.coolMethod(Integer.toString(cmdApi.getInstance().getCmdResult()), callbackContext);
-			
-            return true;
+
+			// this.coolMethod(Integer.toString(cmdApi.getInstance().getCmdResult()),
+			// callbackContext);
+
+			return true;
 		} else if (action.equals("laser")) {
-			
+
 			ComA = new SerialControl();
 			DispQueue = new DispQueueThread();
 			DispQueue.start();
-			
+
 			ComA.setPort("/dev/ttyMT2");
-            ComA.setBaudRate("9600");
+			ComA.setBaudRate("9600");
 			OpenComPort(ComA);
-			
+
 			callbackContext.success("success");
 			return true;
 		} else if (action.equals("laserSendCommand")) {
-			
+
 			ComA.sendHex("1B31");
 			code = "";
 			int sent = 0;
-			while(sent <= 30) {
+			while (sent <= 30) {
 				try {
 					Thread.sleep(100);
-				} catch (Exception e){
-				
+				} catch (Exception e) {
+
 				}
 				code = code.trim();
-				if(!code.equals("") && !code.isEmpty() && code.length() > 0) {
+				if (!code.equals("") && !code.isEmpty() && code.length() > 0) {
 					sent = 31;
 					callbackContext.success(code.trim());
-				} else if (sent == 15){
+				} else if (sent == 15) {
 					ComA.sendHex("1B31");
 					sent = 0;
 				}
@@ -261,67 +263,22 @@ public class USBSerialAndroid extends CordovaPlugin {
 			}
 			return true;
 		} else if (action.equals("laserClose")) {
-			
+
 			ComA.stopSend();
-            ComA.close();
+			ComA.close();
 			callbackContext.success("success");
 			return true;
 		} else if (action.equals("laserScan")) {
-			
-			intent.setAction("android.intent.action.ChangeHotonReceiver");
-            this.cordova.getActivity().sendBroadcast(intent);
-            intent.setAction("android.intent.action.lightonReceiver");
-            this.cordova.getActivity().sendBroadcast(intent);
-			
-			ComA = new SerialControl();
-			DispQueue = new DispQueueThread();
-			DispQueue.start();
-			
-			ComA.setPort("/dev/ttyMT2");
-            ComA.setBaudRate("9600");
-			OpenComPort(ComA);
-			
-			ComA.sendHex("1B31");
-			code = "";
-			int sent = 0;
-			int count = 0;
-			
-			while(sent <= 50) {
-				
-				try {
-					Thread.sleep(100);
-				} catch (Exception e){
-				
+			cordova.getThreadPool().execute(new Runnable() {
+				@Override
+				public void run() {
+					LaserScan(callbackContext);
 				}
-				
-				code = code.trim();
-				if(sent == 50 || (!code.equals("") && !code.isEmpty() && code.length() > 0)) {
-					
-					ComA.stopSend();
-					ComA.close();
-					intent.setAction("android.intent.action.ChangeHotoffReceiver");
-					this.cordova.getActivity().sendBroadcast(intent);
-					intent.setAction("android.intent.action.lightoffReceiver");
-					this.cordova.getActivity().sendBroadcast(intent);
-					
-					sent = 51;
-					callbackContext.success(code.trim());
-					
-				} else if (sent == 20){
-					ComA.sendHex("1B31");
-					sent = 0;
-					
-					if (count == totalRepeatScan) {
-						sent = 20;
-					}
-					count++;
-				}
-				sent++;
-			}
-			
+			});
+
 			return true;
-		}  else if (action.equals("status")) {
-			
+		} else if (action.equals("status")) {
+
 			SerialPort serialPort = new SerialPort();
 			if (serialPort.getSerialPortStatus("/dev/ttyMT2", 9600, 0) == true) {
 				callbackContext.success("true");
@@ -330,68 +287,116 @@ public class USBSerialAndroid extends CordovaPlugin {
 			}
 			return true;
 		}
-        return false;
-    }
-	
-    private void coolMethod(String message, CallbackContext callbackContext) {
-        if (message != null && message.length() > 0) {
-            callbackContext.success(message);
-        } else {
-            callbackContext.error("Expected one non-empty string argument.");
-        }
-    }
-	
+		return false;
+	}
+
+	private void coolMethod(String message, CallbackContext callbackContext) {
+		if (message != null && message.length() > 0) {
+			callbackContext.success(message);
+		} else {
+			callbackContext.error("Expected one non-empty string argument.");
+		}
+	}
+
 	private String getResponse(String message) {
 		return message;
 	}
-	
+
 	private class SerialControl extends SerialHelper {
 
-      
-        public SerialControl() {
-        }
+		public SerialControl() {
+		}
 
-        @Override
-        protected void onDataReceived(final ComBean ComRecData) {
-            DispQueue.AddQueue(ComRecData);
-        }
-    }
-	
+		@Override
+		protected void onDataReceived(final ComBean ComRecData) {
+			DispQueue.AddQueue(ComRecData);
+		}
+	}
+
 	private void OpenComPort(SerialHelper ComPort) {
-        try {
-            ComPort.open();
+		try {
+			ComPort.open();
 			ShowMessage("Opening");
-        } catch (SecurityException e) {
-            ShowMessage("打开串口失败:没有串口读/写权限!");
-        } catch (IOException e) {
-            ShowMessage("打开串口失败:未知错误!");
-        } catch (InvalidParameterException e) {
-            ShowMessage("打开串口失败:参数错误!");
-        }
-    }
-	
-	private class DispQueueThread extends Thread{
+		} catch (SecurityException e) {
+			ShowMessage("打开串口失败:没有串口读/写权限!");
+		} catch (IOException e) {
+			ShowMessage("打开串口失败:未知错误!");
+		} catch (InvalidParameterException e) {
+			ShowMessage("打开串口失败:参数错误!");
+		}
+	}
+
+	protected void LaserScan(CallbackContext callbackContext) {
+		intent.setAction("android.intent.action.ChangeHotonReceiver");
+		this.cordova.getActivity().sendBroadcast(intent);
+		intent.setAction("android.intent.action.lightonReceiver");
+		this.cordova.getActivity().sendBroadcast(intent);
+
+		ComA = new SerialControl();
+		DispQueue = new DispQueueThread();
+		DispQueue.start();
+
+		ComA.setPort("/dev/ttyMT2");
+		ComA.setBaudRate("9600");
+		OpenComPort(ComA);
+
+		ComA.sendHex("1B31");
+		code = "";
+		int sent = 0;
+		int count = 0;
+
+		while (sent <= 50) {
+
+			try {
+				Thread.sleep(100);
+			} catch (Exception e) {
+
+			}
+
+			code = code.trim();
+			if (sent == 50 || (!code.equals("") && !code.isEmpty() && code.length() > 0)) {
+
+				ComA.stopSend();
+				ComA.close();
+				intent.setAction("android.intent.action.ChangeHotoffReceiver");
+				this.cordova.getActivity().sendBroadcast(intent);
+				intent.setAction("android.intent.action.lightoffReceiver");
+				this.cordova.getActivity().sendBroadcast(intent);
+
+				sent = 51;
+				callbackContext.success(code.trim());
+
+			} else if (sent == 20) {
+				ComA.sendHex("1B31");
+				sent = 0;
+
+				if (count == totalRepeatScan) {
+					sent = 20;
+				}
+				count++;
+			}
+			sent++;
+		}
+	}
+
+	private class DispQueueThread extends Thread {
 		private Queue<ComBean> QueueList = new LinkedList<ComBean>();
+
 		@Override
 		public void run() {
 			super.run();
-			while(!isInterrupted()) {
+			while (!isInterrupted()) {
 				final ComBean ComData;
-				//code = "Step 1"+QueueList.size();
-				while((ComData=QueueList.poll())!=null)
-				{
-					new Thread(new Runnable()
-					{
-						public void run()
-						{
+				// code = "Step 1"+QueueList.size();
+				while ((ComData = QueueList.poll()) != null) {
+					new Thread(new Runnable() {
+						public void run() {
 							DispRecData(ComData);
 						}
 					});
-					try
-					{
-						Thread.sleep(100);//显示性能高的话，可以把此数值调小。
-					} catch (Exception e)
-					{
+					try {
+						Thread.sleep(100);// 显示性能高的话，可以把此数值调小。
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					break;
@@ -399,12 +404,12 @@ public class USBSerialAndroid extends CordovaPlugin {
 			}
 		}
 
-		public synchronized void AddQueue(ComBean ComData){
+		public synchronized void AddQueue(ComBean ComData) {
 			code = new String(ComData.bRec);
 			QueueList.add(ComData);
 		}
 	}
-	
+
 	private void DispRecData(ComBean ComRecData) {
 		StringBuilder sMsg = new StringBuilder();
 		sMsg.append(ComRecData.sRecTime);
@@ -415,15 +420,13 @@ public class USBSerialAndroid extends CordovaPlugin {
 		sMsg.append(new String(ComRecData.bRec));
 		sMsg.append("[Hex] ");
 		sMsg.append(MyFunc.ByteArrToHex(ComRecData.bRec));
-		
+
 		sMsg.append("\r\n");
 		code = sMsg.toString();
 	}
-	
-	
-	
-	//------------------------------------------显示消息
-    private void ShowMessage(String sMsg) {
-        MyLog.i("INFO", sMsg);
-    }
+
+	// ------------------------------------------显示消息
+	private void ShowMessage(String sMsg) {
+		MyLog.i("INFO", sMsg);
+	}
 }
