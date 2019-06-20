@@ -40,6 +40,11 @@ import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.FileWriter;
 
+import android.content.Intent;
+import android.content.Context;
+import android.app.Activity;
+import org.apache.cordova.CordovaActivity;
+
 import utils.MyLog;
 
 /**
@@ -64,6 +69,8 @@ public class USBSerialAndroid extends CordovaPlugin {
 	private FileWriter outp = null;
 	
 	private int totalRepeatScan = 2;
+	
+	private Intent intent = new Intent();
 	
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -221,6 +228,13 @@ public class USBSerialAndroid extends CordovaPlugin {
             return true;
 		} else if (action.equals("laser")) {
 			
+			ComA = new SerialControl();
+			DispQueue = new DispQueueThread();
+			DispQueue.start();
+			
+			ComA.setPort("/dev/ttyMT2");
+            ComA.setBaudRate("9600");
+			OpenComPort(ComA);
 			
 			callbackContext.success("success");
 			return true;
@@ -254,6 +268,11 @@ public class USBSerialAndroid extends CordovaPlugin {
 			return true;
 		} else if (action.equals("laserScan")) {
 			
+			intent.setAction("android.intent.action.ChangeHotonReceiver");
+            this.cordova.getActivity().sendBroadcast(intent);
+            intent.setAction("android.intent.action.lightonReceiver");
+            this.cordova.getActivity().sendBroadcast(intent);
+			
 			ComA = new SerialControl();
 			DispQueue = new DispQueueThread();
 			DispQueue.start();
@@ -278,23 +297,28 @@ public class USBSerialAndroid extends CordovaPlugin {
 				code = code.trim();
 				if(sent == 50 || (!code.equals("") && !code.isEmpty() && code.length() > 0)) {
 					
+					ComA.stopSend();
+					ComA.close();
+					intent.setAction("android.intent.action.ChangeHotoffReceiver");
+					this.cordova.getActivity().sendBroadcast(intent);
+					intent.setAction("android.intent.action.lightoffReceiver");
+					this.cordova.getActivity().sendBroadcast(intent);
+					
 					sent = 51;
 					callbackContext.success(code.trim());
 					
-				} else if (sent == 15){
+				} else if (sent == 20){
 					ComA.sendHex("1B31");
 					sent = 0;
 					
 					if (count == totalRepeatScan) {
-						sent = 15;
+						sent = 20;
 					}
 					count++;
 				}
 				sent++;
 			}
 			
-			ComA.stopSend();
-            ComA.close();
 			return true;
 		}  else if (action.equals("status")) {
 			
@@ -304,6 +328,7 @@ public class USBSerialAndroid extends CordovaPlugin {
 			} else {
 				callbackContext.success("false");
 			}
+			return true;
 		}
         return false;
     }
