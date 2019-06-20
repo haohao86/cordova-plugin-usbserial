@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android_serialport_api.SerialPortFinder;
+import android_serialport_api.SerialPort;
 
 import com.nlscan.ComAssistant.MyFunc;
 import com.nlscan.ComAssistant.SerialHelper;
@@ -220,16 +221,9 @@ public class USBSerialAndroid extends CordovaPlugin {
             return true;
 		} else if (action.equals("laser")) {
 			
-			ComA = new SerialControl();
-			DispQueue = new DispQueueThread();
-			DispQueue.start();
-			
-			ComA.setPort("/dev/ttyMT2");
-            ComA.setBaudRate("9600");
-			OpenComPort(ComA);
 			
 			callbackContext.success("success");
-			
+			return true;
 		} else if (action.equals("laserSendCommand")) {
 			
 			ComA.sendHex("1B31");
@@ -251,13 +245,13 @@ public class USBSerialAndroid extends CordovaPlugin {
 				}
 				sent++;
 			}
-			
+			return true;
 		} else if (action.equals("laserClose")) {
 			
 			ComA.stopSend();
             ComA.close();
 			callbackContext.success("success");
-			
+			return true;
 		} else if (action.equals("laserScan")) {
 			
 			ComA = new SerialControl();
@@ -301,7 +295,15 @@ public class USBSerialAndroid extends CordovaPlugin {
 			
 			ComA.stopSend();
             ComA.close();
+			return true;
+		}  else if (action.equals("status")) {
 			
+			SerialPort serialPort = new SerialPort();
+			if (serialPort.getSerialPortStatus("/dev/ttyMT2", 9600, 0) == true) {
+				callbackContext.success("true");
+			} else {
+				callbackContext.success("false");
+			}
 		}
         return false;
     }

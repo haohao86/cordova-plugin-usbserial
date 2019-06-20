@@ -23,3 +23,7 @@ exports.laserClose = function (success, error) {
 exports.laserScan = function (success, error) {
     exec(success, error, 'USBSerialAndroid', 'laserScan', []);
 };
+
+exports.status = function (success, error) {
+    exec(success, error, 'USBSerialAndroid', 'status', []);
+};

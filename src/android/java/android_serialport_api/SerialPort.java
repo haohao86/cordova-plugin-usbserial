@@ -46,6 +46,18 @@ public class SerialPort {
 		mFileInputStream = new FileInputStream(mFd);
 		mFileOutputStream = new FileOutputStream(mFd);
 	}
+	
+	public SerialPort() {}
+	
+	public boolean getSerialPortStatus(String path, int baudrate, int flags) {
+		
+		mFd = open(path, baudrate, flags);
+		if (mFd == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	// Getters and setters
 	public InputStream getInputStream() {
