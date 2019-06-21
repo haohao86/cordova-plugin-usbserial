@@ -269,14 +269,10 @@ public class USBSerialAndroid extends CordovaPlugin {
 			callbackContext.success("success");
 			return true;
 		} else if (action.equals("laserScan")) {
-			cordova.getThreadPool().execute(new Runnable() {
-				@Override
-				public void run() {
-					LaserScan(callbackContext);
-				}
-			});
 
+			LaserScan(callbackContext);
 			return true;
+			
 		} else if (action.equals("status")) {
 
 			SerialPort serialPort = new SerialPort();
