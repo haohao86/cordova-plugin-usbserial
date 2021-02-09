@@ -156,6 +156,11 @@ public class USBSerialAndroid extends CordovaPlugin {
 			return true;
 		} else if (action.equals("sendMasterCommand")) {
 
+			intent.setAction("android.intent.action.ChangeHotonReceiver");
+            this.cordova.getActivity().sendBroadcast(intent);
+            intent.setAction("android.intent.action.lightonReceiver");
+            this.cordova.getActivity().sendBroadcast(intent);
+
 			cmdTimeoutCounter = 0;
 
 			String masterSerialNumber = args.getString(0);
@@ -282,6 +287,16 @@ public class USBSerialAndroid extends CordovaPlugin {
 				callbackContext.success("false");
 			}
 			return true;
+		} else if (action.equals("dongleClose")) {
+			intent.setAction("android.intent.action.ChangeHotoffReceiver");
+			this.cordova.getActivity().sendBroadcast(intent);
+			intent.setAction("android.intent.action.lightoffReceiver");
+			this.cordova.getActivity().sendBroadcast(intent);
+		} else if (action.equals("dongleOpen")) {
+			intent.setAction("android.intent.action.ChangeHotonReceiver");
+            this.cordova.getActivity().sendBroadcast(intent);
+            intent.setAction("android.intent.action.lightonReceiver");
+            this.cordova.getActivity().sendBroadcast(intent);
 		}
 		return false;
 	}

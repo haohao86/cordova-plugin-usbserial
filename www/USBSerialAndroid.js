@@ -27,3 +27,11 @@ exports.laserScan = function (success, error) {
 exports.status = function (success, error) {
     exec(success, error, 'USBSerialAndroid', 'status', []);
 };
+
+exports.dongleOpen = function (success, error) {
+    exec(success, error, 'USBSerialAndroid', 'dongleOpen', []);
+};
+
+exports.dongleClose = function (success, error) {
+    exec(success, error, 'USBSerialAndroid', 'dongleClose', []);
+};
