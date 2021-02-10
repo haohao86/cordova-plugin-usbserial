@@ -292,11 +292,13 @@ public class USBSerialAndroid extends CordovaPlugin {
 			this.cordova.getActivity().sendBroadcast(intent);
 			intent.setAction("android.intent.action.lightoffReceiver");
 			this.cordova.getActivity().sendBroadcast(intent);
+			return true;
 		} else if (action.equals("dongleOpen")) {
 			intent.setAction("android.intent.action.ChangeHotonReceiver");
             this.cordova.getActivity().sendBroadcast(intent);
             intent.setAction("android.intent.action.lightonReceiver");
             this.cordova.getActivity().sendBroadcast(intent);
+			return true;
 		}
 		return false;
 	}
