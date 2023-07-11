@@ -5,7 +5,7 @@ import org.apache.cordova.CallbackContext;
 import HelloWorld.Puppy;
 import com.envotech.tablet.ExecuteResultKey;
 import com.envotech.tablet.RFCommandApi;
-
+import com.senter.support.openapi.StBarcodeScanner;
 import android.content.Context;
 import android.app.Activity;
 import android.os.Handler;
@@ -46,6 +46,9 @@ import android.app.Activity;
 import org.apache.cordova.CordovaActivity;
 
 import utils.MyLog;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class echoes a string called from JavaScript.
@@ -299,6 +302,39 @@ public class USBSerialAndroid extends CordovaPlugin {
             intent.setAction("android.intent.action.lightonReceiver");
             this.cordova.getActivity().sendBroadcast(intent);
 			return true;
+		} else if (action.equals("laserScanV2")) {
+			
+			try {
+				StBarcodeScanner scanner = StBarcodeScanner.getInstance();
+				
+				StBarcodeScanner.BarcodeInfo rslt = scanner.scanBarcodeInfo(this.cordova.getActivity().getApplication());
+				
+				int sent = 0;
+				
+				while (sent <= 30) {
+					
+					try {
+						Thread.sleep(100);
+					} catch (Exception e) {
+
+					}
+					
+					if (rslt != null) {
+						sent = 31;
+						callbackContext.success(new String(rslt.getBarcodeValueAsBytes(), "utf-8"));
+					} else if (sent == 15) {
+						rslt = scanner.scanBarcodeInfo(this.cordova.getActivity().getApplication());
+						sent = 0;
+					}
+					sent++;
+				}
+				
+			} catch (Exception e) {
+				
+			}
+			
+			return true;
+			
 		}
 		return false;
 	}
