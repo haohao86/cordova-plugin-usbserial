@@ -39,3 +39,7 @@ exports.dongleClose = function (success, error) {
 exports.laserScanV2 = function (success, error) {
     exec(success, error, 'USBSerialAndroid', 'laserScanV2', []);
 };
+
+exports.laserScanHoneyWell = function (success, error) {
+    exec(success, error, 'USBSerialAndroid', 'laserScanHoneyWell', []);
+};

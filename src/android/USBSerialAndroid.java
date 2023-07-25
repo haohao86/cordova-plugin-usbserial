@@ -6,6 +6,7 @@ import HelloWorld.Puppy;
 import com.envotech.tablet.ExecuteResultKey;
 import com.envotech.tablet.RFCommandApi;
 import com.senter.support.openapi.StBarcodeScanner;
+import com.senter.iot.support.openapi.StBarcodeScanOperator;
 import android.content.Context;
 import android.app.Activity;
 import android.os.Handler;
@@ -335,10 +336,59 @@ public class USBSerialAndroid extends CordovaPlugin {
 			
 			return true;
 			
+		} else if (action.equals("laserScanHoneyWell")) {
+			
+			if (StBarcodeScanOperator.getInstance(this.cordova.getActivity()).isLibrarySupport()) {
+				
+				StBarcodeScanOperator.getInstance(this.cordova.getActivity()).init(new StBarcodeScanOperator.InitListener() {
+					@Override
+					public void onInit(StBarcodeScanOperator.ErrorCode code) {
+						//
+						if (code == StBarcodeScanOperator.ErrorCode.SUCCESS) {
+							scanHoneyWell(callbackContext);
+						} else {
+							callbackContext.success(new String("Init failed"));
+						}
+					}
+				});
+			}
+			
+			return true;
 		}
 		return false;
 	}
 
+	private void scanHoneyWell(CallbackContext callbackContext) {
+		
+		try {
+				
+			StBarcodeScanOperator.BarcodeInfo barcodeInfo = StBarcodeScanOperator.getInstance(this.cordova.getActivity().getApplication()).scan();
+			
+			int sent = 0;
+			
+			while (sent <= 30) {
+				
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+
+				}
+				
+				if (barcodeInfo != null && barcodeInfo.getBarcodeValueAsBytes() != null) {
+					sent = 31;
+					callbackContext.success(new String(barcodeInfo.getBarcodeValueAsBytes(), "utf-8"));
+				} else if (sent == 15) {
+					barcodeInfo = StBarcodeScanOperator.getInstance(this.cordova.getActivity().getApplication()).scan();
+					sent = 0;
+				}
+				sent++;
+			}
+
+		} catch (Exception e) {
+			
+		}
+	}
+	
 	private void coolMethod(String message, CallbackContext callbackContext) {
 		if (message != null && message.length() > 0) {
 			callbackContext.success(message);

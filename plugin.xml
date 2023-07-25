@@ -74,5 +74,7 @@
 	  <lib-file src="libs/tablet-1.0.0.jar" arch="tablet" />
 	  <lib-file src="libs/SenterOpenApi_IoT_1.2.3.107_20230324161451_Common.jar" arch="senterCommon" />
 	  <lib-file src="libs/SenterOpenApi_IoT_1.2.3.107_20230324161451_Function_Barcode.jar" arch="senterBarcode" />
+	  <lib-file src="libs/SenterOpenApi_IoT_1.2.3.107_20230324161451_Function_BarcodeAidl.jar" arch="senterAidl" />
+	  <lib-file src="libs/SenterOpenApi_IoT_1.2.3.107_20230324161451_Function_KeyManager.jar" arch="senterKeyManager" />
    </platform>
 </plugin>
