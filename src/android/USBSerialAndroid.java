@@ -351,6 +351,38 @@ public class USBSerialAndroid extends CordovaPlugin {
 						}
 					}
 				});
+				
+			} else {
+				
+				try {
+					StBarcodeScanner scanner = StBarcodeScanner.getInstance();
+					
+					StBarcodeScanner.BarcodeInfo rslt = scanner.scanBarcodeInfo(this.cordova.getActivity().getApplication());
+					
+					int sent = 0;
+					
+					while (sent <= 30) {
+						
+						try {
+							Thread.sleep(100);
+						} catch (Exception e) {
+
+						}
+						
+						if (rslt != null) {
+							sent = 31;
+							callbackContext.success(new String(rslt.getBarcodeValueAsBytes(), "utf-8"));
+						} else if (sent == 15) {
+							rslt = scanner.scanBarcodeInfo(this.cordova.getActivity().getApplication());
+							sent = 0;
+						}
+						sent++;
+					}
+					
+				} catch (Exception e) {
+					
+				}
+			
 			}
 			
 			return true;
