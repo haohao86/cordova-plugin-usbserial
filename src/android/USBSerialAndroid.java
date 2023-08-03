@@ -338,53 +338,18 @@ public class USBSerialAndroid extends CordovaPlugin {
 			
 		} else if (action.equals("laserScanHoneyWell")) {
 			
-			if (StBarcodeScanOperator.getInstance(this.cordova.getActivity()).isLibrarySupport()) {
-				
-				StBarcodeScanOperator.getInstance(this.cordova.getActivity()).init(new StBarcodeScanOperator.InitListener() {
-					@Override
-					public void onInit(StBarcodeScanOperator.ErrorCode code) {
-						//
-						if (code == StBarcodeScanOperator.ErrorCode.SUCCESS) {
-							scanHoneyWell(callbackContext);
-						} else {
-							callbackContext.success(new String("Init failed"));
-						}
+			StBarcodeScanOperator.getInstance(this.cordova.getActivity()).init(new StBarcodeScanOperator.InitListener() {
+				@Override
+				public void onInit(StBarcodeScanOperator.ErrorCode code) {
+					//
+					if (code == StBarcodeScanOperator.ErrorCode.SUCCESS) {
+						scanHoneyWell(callbackContext);
+					} else {
+						callbackContext.success(new String("Init failed"));
 					}
-				});
-				
-			} else {
-				
-				try {
-					StBarcodeScanner scanner = StBarcodeScanner.getInstance();
-					
-					StBarcodeScanner.BarcodeInfo rslt = scanner.scanBarcodeInfo(this.cordova.getActivity().getApplication());
-					
-					int sent = 0;
-					
-					while (sent <= 30) {
-						
-						try {
-							Thread.sleep(100);
-						} catch (Exception e) {
-
-						}
-						
-						if (rslt != null) {
-							sent = 31;
-							callbackContext.success(new String(rslt.getBarcodeValueAsBytes(), "utf-8"));
-						} else if (sent == 15) {
-							rslt = scanner.scanBarcodeInfo(this.cordova.getActivity().getApplication());
-							sent = 0;
-						}
-						sent++;
-					}
-					
-				} catch (Exception e) {
-					
 				}
-			
-			}
-			
+			});
+		
 			return true;
 		}
 		return false;
